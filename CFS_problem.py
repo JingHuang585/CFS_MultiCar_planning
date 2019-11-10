@@ -2,6 +2,70 @@ import numpy as np
 from numpy import linalg as LA
 
 
+def define_path():
+    '''
+    Define initial reference paths for multiple cars.
+    Return:
+        multi_path: Shape: num_cars x nsteps x 2. Paths for number of cars.
+    '''
+    multi_path = []
+    # Define path 0
+    path_seg_0 = np.array([[10, 0], [30, 0]])
+    path_0 = get_path(path_seg_0, 1)
+    multi_path.append(path_0)
+    # Define path 1
+    path_seg_1 = np.array([[0, 0.01], [40, 0.01]])
+    path_1 = get_path(path_seg_1, 2)
+    # print(path_1.shape)
+    # print(path_1)
+    multi_path.append(path_1)
+
+    # # Define path 2
+    # path_seg_2 = np.array([[0, 30], [0, 130]])
+    # path_2 = get_path(path_seg_2, 3)
+    # # print(path_2.shape)
+    # # print(path_2)
+    # multi_path.append(path_2)
+    # # Define path 3
+    # path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
+    # path_3 = get_path(path_seg_3, 3)
+    # # print(path_3.shape)
+    # # print(path_3)
+    # multi_path.append(path_3)
+    # # Define path 4
+    # path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
+    # path_4 = get_path(path_seg_4, 3)
+    # # print(path_4.shape)
+    # # print(path_4)
+    # multi_path.append(path_4)
+    # # Define path 5
+    # path_seg_5 = np.array([[3.5, -20], [3.5, 80]])
+    # path_5 = get_path(path_seg_5, 3)
+    # # print(path_5.shape)
+    # # print(path_5)
+    # multi_path.append(path_5)
+    # # Define path 6
+    # path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 85]])
+    # path_6 = get_path(path_seg_6, 3)
+    # # print(path_6.shape)
+    # # print(path_6)
+    # multi_path.append(path_6)
+    # # Define path 7
+    # path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 75]])
+    # path_7 = get_path(path_seg_7, 3)
+    # # print(path_7.shape)
+    # # print(path_7)
+    # multi_path.append(path_7)
+    # # Define path 8
+    # path_seg_8 = np.array([[-3.5, -5], [-3.5, 95]])
+    # path_8 = get_path(path_seg_8, 3)
+    # # print(path_8.shape)
+    # # print(path_8)
+    # multi_path.append(path_8)
+    # # path_seg_2 = np.array()
+    multi_path = np.array(multi_path)
+    return multi_path
+
 
 def get_interpolate(loc_1, loc_2, resolution = 3):
     '''
@@ -24,13 +88,11 @@ def get_path(path_segments_array, resolution):
         path_segments_array: numpy array that contains path points that segement the path. 
         resolution: Interpolation resolution
     Outputs:
-        path: numpy array that demonstrate the path. Dimension: nx2
+        path: numpy array that demonstrate the path. Dimension: n x 2
     '''
-    # print(path_segments_array.shape)
     num_seg = path_segments_array.shape[0]
     path = np.zeros((1, 2))
     for i in range(num_seg - 1):
-        # print(path_segments_array[i])
         subpath = get_interpolate(path_segments_array[i], path_segments_array[i+1], resolution)
         if i == 0:
             path = subpath

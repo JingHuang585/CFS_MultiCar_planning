@@ -7,25 +7,34 @@ from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from cvxpy import *
 import matplotlib.pyplot as plt
+import imageio
 
 
 
-#Quadratic programming solver.
-def cvxopt_solve_qp(P, q, G=None, h=None, A=None, b=None):
-    P = .5 * (P + P.T)  # make sure P is symmetric
-    args = [matrix(P), matrix(q)]
-    if G is not None:
-        args.extend([matrix(G), matrix(h)])
-        if A is not None:
-            args.extend([matrix(A), matrix(b)])
-    sol = cvxopt.solvers.qp(*args)
-    if 'optimal' not in sol['status']:
-        return None
-    return np.array(sol['x']).reshape((P.shape[1],))
+# #Quadratic programming solver.
+# def cvxopt_solve_qp(P, q, G=None, h=None, A=None, b=None):
+#     P = .5 * (P + P.T)  # make sure P is symmetric
+#     args = [matrix(P), matrix(q)]
+#     if G is not None:
+#         args.extend([matrix(G), matrix(h)])
+#         if A is not None:
+#             args.extend([matrix(A), matrix(b)])
+#     sol = cvxopt.solvers.qp(*args)
+#     if 'optimal' not in sol['status']:
+#         return None
+#     return np.array(sol['x']).reshape((P.shape[1],))
 
-
+COLOR = ['red', 'blue', 'yellow', 'black']
 
 def get_tayler_expansion_points(high_pri_pt, low_pri_pt, mini_distance):
+    '''
+    Args:
+        high_pri_pt: Reference point 1 with higher priority.
+        low_pri_pt: Reference point with lower priority.
+        mini_distance: Safety margin between two cars.
+    Return:
+        new_ref: New reference points that can be used for tayler expansion.
+    '''
     new_ref = np.zeros((4, 1))
     new_ref[0:2] = high_pri_pt
     dir = (low_pri_pt - high_pri_pt) / np.linalg.norm(low_pri_pt - high_pri_pt)
@@ -33,6 +42,13 @@ def get_tayler_expansion_points(high_pri_pt, low_pri_pt, mini_distance):
     return new_ref
 
 def two_car_distance(path1, path2):
+    '''
+    Args:
+        path1: Trajectory of car 1.
+        path2: Trajectory of car 2.
+    Return:
+        distance: Distance between two cars at every time steps.
+    '''
     nstep = path1.shape[0]
     distance = []
     for i in range(nstep):
@@ -40,9 +56,10 @@ def two_car_distance(path1, path2):
         pts2 = path2[i, :]
         dist = np.linalg.norm(pts1-pts2)
         distance.append(dist)
-    plt.plot(distance)
-    plt.show()
+    # plt.plot(distance)
+    # plt.show()
     print(np.min(distance))
+    return distance
 
 def get_line(x1, y1, x2, y2):
     '''
@@ -58,13 +75,53 @@ def get_line(x1, y1, x2, y2):
     coe[2] = y2*(x2-x1) - x2*(y2-y1)
     return coe
 
+def path_rendering(pathnew, num):
+    '''
+    Args:
+        pathnew: Optimized result variable.
+        num: Number of cars.
+    Return:
+        Render the GIF image of the cars' trajectory.
+    '''
+    nstep = int(pathnew.shape[0] / (num*2))
+    car_path = np.zeros((num, nstep, 2))
+    images = []
+    for i in range(num):
+        car_path[i][:, 0] = pathnew[2*i : : 4]
+        car_path[i][:, 1] = pathnew[2*i+1 : : 4]
+    
+    fig = plt.figure()
+    for i in range(nstep):
+        x = np.zeros((num, 1))
+        y = np.zeros((num, 1))
+        plot_legend = []
+        for j in range(num):
+            x[j] = car_path[j][i, 0]
+            y[j] = car_path[j][i, 1]
+            plt.xlim(-5, 55)
+            plt.ylim(-5, 10)
+            plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
+            plot_legend.append('car {}'.format(j))
+        plt.legend(plot_legend, loc = 'upper right')
+        fig.savefig('./results/{}.png'.format(i))
+        images.append(imageio.imread('./results/{}.png'.format(i)))
+    imageio.mimsave('./results/Path_rendering.gif', images)
+
+
     
 def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
+    '''
+    Args:
+        MAX_ITER: Maximum iterations of optimizations.
+        multi_path: Shape: num_cars x nsteps x 2. Reference path of the multiple cars.
+        mini_distance: Safety margin between two cars.
+    Returns:
+        pathnew: Planned path for multiple cars.
+    '''
 	#mini_distance = 20
     Qref, Qabs, nstep, dim, oripath, I_2 = Setup_problem(multi_path)
     refpath = oripath
     print("refpath shape is:{}".format(refpath.shape))
-    # print("refpath and oripath:{}".format(refpath.squeeze()))
     print("Qref shape:{}, Qabs shape:{}".format(Qref.shape, Qabs.shape))
     Qe = Qref + Qabs
     n = nstep * dim
@@ -159,23 +216,14 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
         refpath = pathnew
 
         # Show planned path
-        for i in range(2):
-            x = pathnew[2*i : : 4]
-            y = pathnew[2*i+1 : : 4]
-            plt.plot(y, x)
-        plt.legend(('1', '2', '3', '4', '5', '6', '7', '8', '9'))
-        plt.show()
-
-
-
+        # for i in range(2):
+        #     x = pathnew[2*i : : 4]
+        #     y = pathnew[2*i+1 : : 4]
+        #     plt.plot(y, x)
+        # plt.legend(('1', '2'))
+        # plt.show()
 
     print("Loop finished!")
-
-
-    # #Calculate the distance between two agents at every step.
-    # distance = np.zeros((nstep, 1))
-    # for i in range(nstep):
-        # distance[i] = LA.norm(pathnew[dim*i : dim*i+2] - pathnew[dim*i+2 : dim*i+4])
 
     return pathnew
 
@@ -183,67 +231,9 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
 
 def main():
     MAX_ITER = 10
+    num_cars = 2
+    multi_path = define_path()
 
-    multi_path = []
-    # Define path 0
-    path_seg_0 = np.array([[0, 0], [20, 20]])
-    path_0 = get_path(path_seg_0, 1)
-    # print(path_0.shape)
-    # print(path_0)
-    multi_path.append(path_0)
-    # Define path 1
-    path_seg_1 = np.array([[0, 20], [20, 0]])
-    path_1 = get_path(path_seg_1, 1)
-    # print(path_1.shape)
-    # print(path_1)
-    multi_path.append(path_1)
-
-    # # Define path 2
-    # path_seg_2 = np.array([[0, 30], [0, 130]])
-    # path_2 = get_path(path_seg_2, 3)
-    # # print(path_2.shape)
-    # # print(path_2)
-    # multi_path.append(path_2)
-    # # Define path 3
-    # path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
-    # path_3 = get_path(path_seg_3, 3)
-    # # print(path_3.shape)
-    # # print(path_3)
-    # multi_path.append(path_3)
-    # # Define path 4
-    # path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
-    # path_4 = get_path(path_seg_4, 3)
-    # # print(path_4.shape)
-    # # print(path_4)
-    # multi_path.append(path_4)
-    # # Define path 5
-    # path_seg_5 = np.array([[3.5, -20], [3.5, 80]])
-    # path_5 = get_path(path_seg_5, 3)
-    # # print(path_5.shape)
-    # # print(path_5)
-    # multi_path.append(path_5)
-    # # Define path 6
-    # path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 85]])
-    # path_6 = get_path(path_seg_6, 3)
-    # # print(path_6.shape)
-    # # print(path_6)
-    # multi_path.append(path_6)
-    # # Define path 7
-    # path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 75]])
-    # path_7 = get_path(path_seg_7, 3)
-    # # print(path_7.shape)
-    # # print(path_7)
-    # multi_path.append(path_7)
-    # # Define path 8
-    # path_seg_8 = np.array([[-3.5, -5], [-3.5, 95]])
-    # path_8 = get_path(path_seg_8, 3)
-    # # print(path_8.shape)
-    # # print(path_8)
-    # multi_path.append(path_8)
-    # # path_seg_2 = np.array()
-
-
-    multi_path = np.array(multi_path)
     # print("Converted shape is: {}".format(multi_path.shape))
 
     # for i in range(len(multi_path)):
@@ -251,27 +241,17 @@ def main():
     #     print(multi_path[i].shape)
 
 
-
-
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
-    print(type(pathnew), pathnew.shape)
-    nstep = int(pathnew.shape[0] / 4)
-    pathnew1 = np.empty((nstep, 2))
-    pathnew2 = np.empty((nstep, 2))
+    
+    nstep = int(pathnew.shape[0] / (num_cars*2))
+    pathnew1 = np.zeros((nstep, 2))
+    pathnew2 = np.zeros((nstep, 2))
     pathnew1[:, 0] = pathnew[0 : : 4]
     pathnew1[:, 1] = pathnew[1 : : 4]
     pathnew2[:, 0] = pathnew[2 : : 4]
     pathnew2[:, 1] = pathnew[3 : : 4]
-
-    for i in range(2):
-        x = pathnew[2*i : : 4]
-        y = pathnew[2*i+1 : : 4]
-        plt.plot(y, x)
-
-    plt.legend(('1', '2', '3', '4', '5', '6', '7', '8', '9'))
-    plt.show()
-    
-    two_car_distance(pathnew1, pathnew2)
+    distance = two_car_distance(pathnew1, pathnew2)
+    path_rendering(pathnew, num_cars)
     
 
     
@@ -280,32 +260,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-#The iteration
-# MAX_ITER = 10
-# nstep = 50
-# mini_distance = 10
-# dim = 4
-# start_1 = [0, 0];
-# ending_1 = [200, 0]; 
-# start_2 = [100, 0.5];
-# ending_2 = [100, 0.5];
 
-# start_time = time.time()
-# pathnew, distance = Plan_trajectory(MAX_ITER, start_1, ending_1, start_2, ending_2, mini_distance, nstep, dim)
-# print("Calculating time: {}".format(time.time() - start_time))
-
-
-
-
-
-
-# plt.axis([-10, 210, -100, 100])
-# plt.plot(pathnew[2*0 :  : dim], pathnew[2*0+1 :  : dim], 'bo')
-# plt.plot(pathnew[2*1 :  : dim], pathnew[2*1+1 :  : dim], 'rs')
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.title('Cozmo Trajectory Generation!')
-# plt.show()
 
 
 

@@ -98,7 +98,7 @@ def path_rendering(pathnew, num):
         for j in range(num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
-            plt.xlim(-5, 55)
+            plt.xlim(-5, 120)
             plt.ylim(-5, 10)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j))
@@ -150,6 +150,11 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
 
                     cons = A[0, 0:2].reshape(1,2)@x[dim*j:dim*(j+1)][2*l:2*(l+1)] + A[0, 2:4].reshape(1,2)@x[dim*j:dim*(j+1)][2*m:2*(m+1)] <= b
                     constraints.append(cons)
+            
+            # Define lane keeping constraint for the car being overtaked
+            lane_keeping_id = 0
+            cons = x[dim*j + 2*lane_keeping_id+1] == x_ref_1[2*lane_keeping_id+1]
+            constraints.append(cons)
             
             # Define priority constraint
             if j < nstep-1:

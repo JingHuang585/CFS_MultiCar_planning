@@ -13,12 +13,12 @@ def define_path():
     '''
     multi_path = []
     # Define path 0
-    path_seg_0 = np.array([[10, 0], [30, 0]])
-    path_0 = get_path(path_seg_0, 1)
+    path_seg_0 = np.array([[20, 0], [70, 0]])
+    path_0 = get_path(path_seg_0, 2)
     multi_path.append(path_0)
     # Define path 1
-    path_seg_1 = np.array([[0, 0.01], [40, 0.01]])
-    path_1 = get_path(path_seg_1, 2)
+    path_seg_1 = np.array([[0, 0.01], [100, 0.01]])
+    path_1 = get_path(path_seg_1, 4)
     multi_path.append(path_1)
 
     # # Define path 2

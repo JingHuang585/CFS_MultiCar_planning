@@ -98,8 +98,8 @@ def path_rendering(pathnew, num):
         for j in range(num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
-            plt.xlim(-5, 55)
-            plt.ylim(-5, 10)
+            plt.xlim(-5, 25)
+            plt.ylim(-5, 25)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j))
         plt.legend(plot_legend, loc = 'upper right')
@@ -118,7 +118,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     Returns:
         pathnew: Planned path for multiple cars.
     '''
-	#mini_distance = 20
     Qref, Qabs, nstep, dim, oripath, I_2 = Setup_problem(multi_path)
     refpath = oripath
     print("refpath shape is:{}".format(refpath.shape))
@@ -127,7 +126,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     n = nstep * dim
     print("n is: {}".format(n))
 
-    
     for i in range(MAX_ITER):
         print(i)
         x = Variable(n)
@@ -153,12 +151,8 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
                     #print(A[0, 0:2].shape, x[dim*j:dim*(j+1)][2*l:2*(l+1)].shape, b.shape)
                     cons = A[0, 0:2].reshape(1,2)@x[dim*j:dim*(j+1)][2*l:2*(l+1)] + A[0, 2:4].reshape(1,2)@x[dim*j:dim*(j+1)][2*m:2*(m+1)] <= b
                     constraints.append(cons)
-                    #break
-                #break
             
             # Define priority constraint
-            # ...
-            #print("x_ref_1 shape: {}, x_ref_2 shape: {}".format(x_ref_1.shape, x_ref_2.shape))
             if j < nstep-1:
                 coe1 = get_line(x_ref_1[0], x_ref_1[1], x_ref_2[0], x_ref_2[1])
                 coe2 = get_line(x_ref_1[2], x_ref_1[3], x_ref_2[2], x_ref_2[3])

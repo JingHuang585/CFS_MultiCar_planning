@@ -7,6 +7,9 @@ def define_path():
     Define initial reference paths for multiple cars.
     Return:
         multi_path: Shape: num_cars x nsteps x 2. Paths for number of cars.
+    Note:
+        When creating path_i, the length and the resolution of the path should be modified 
+        so that every path has the same number of path points.
     '''
     multi_path = []
     # Define path 0
@@ -16,8 +19,6 @@ def define_path():
     # Define path 1
     path_seg_1 = np.array([[0, 0.01], [40, 0.01]])
     path_1 = get_path(path_seg_1, 2)
-    # print(path_1.shape)
-    # print(path_1)
     multi_path.append(path_1)
 
     # # Define path 2

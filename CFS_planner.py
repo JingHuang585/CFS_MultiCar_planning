@@ -118,7 +118,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     Returns:
         pathnew: Planned path for multiple cars.
     '''
-	#mini_distance = 20
     Qref, Qabs, nstep, dim, oripath, I_2 = Setup_problem(multi_path)
     refpath = oripath
     print("refpath shape is:{}".format(refpath.shape))
@@ -127,7 +126,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     n = nstep * dim
     print("n is: {}".format(n))
 
-    
     for i in range(MAX_ITER):
         print(i)
         x = Variable(n)
@@ -150,15 +148,10 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
                     b = -mini_distance**2 - 1/2 * (A_step @ ref_points)
                     A = -A_step
 
-                    #print(A[0, 0:2].shape, x[dim*j:dim*(j+1)][2*l:2*(l+1)].shape, b.shape)
                     cons = A[0, 0:2].reshape(1,2)@x[dim*j:dim*(j+1)][2*l:2*(l+1)] + A[0, 2:4].reshape(1,2)@x[dim*j:dim*(j+1)][2*m:2*(m+1)] <= b
                     constraints.append(cons)
-                    #break
-                #break
             
             # Define priority constraint
-            # ...
-            #print("x_ref_1 shape: {}, x_ref_2 shape: {}".format(x_ref_1.shape, x_ref_2.shape))
             if j < nstep-1:
                 coe1 = get_line(x_ref_1[0], x_ref_1[1], x_ref_2[0], x_ref_2[1])
                 coe2 = get_line(x_ref_1[2], x_ref_1[3], x_ref_2[2], x_ref_2[3])
@@ -233,14 +226,6 @@ def main():
     MAX_ITER = 10
     num_cars = 2
     multi_path = define_path()
-
-    # print("Converted shape is: {}".format(multi_path.shape))
-
-    # for i in range(len(multi_path)):
-    #     multi_path[i] = multi_path[i][0:35, :]
-    #     print(multi_path[i].shape)
-
-
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
     
     nstep = int(pathnew.shape[0] / (num_cars*2))
@@ -253,9 +238,6 @@ def main():
     distance = two_car_distance(pathnew1, pathnew2)
     path_rendering(pathnew, num_cars)
     
-
-    
-
 
 if __name__ == "__main__":
     main()

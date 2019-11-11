@@ -2,9 +2,11 @@ import numpy as np
 from numpy import linalg as LA
 
 
-def define_path():
+def define_path(dt):
     '''
     Define initial reference paths for multiple cars.
+    Args:
+        dt: Time step between two path points of a car.
     Return:
         multi_path: Shape: num_cars x nsteps x 2. Paths for number of cars.
     Note:
@@ -13,22 +15,22 @@ def define_path():
     '''
     multi_path = []
     # Define path 0
-    path_seg_0 = np.array([[0, 0], [20, 20]])
-    path_0 = get_path(path_seg_0, 1)
+    path_seg_0 = np.array([[20, 0], [70, 0]])
+    resolution_0 = 2                                     # Resolution indicates nominal speed is resolution/dt (m/s)
+    path_0 = get_path(path_seg_0, resolution_0)          
     multi_path.append(path_0)
     # Define path 1
-    path_seg_1 = np.array([[0, 20], [20, 0]])
-    path_1 = get_path(path_seg_1, 1)
-    # print(path_1.shape)
-    # print(path_1)
+    path_seg_1 = np.array([[0, 0.01], [100, 0.01]])
+    resolution_1 = 4
+    path_1 = get_path(path_seg_1, resolution_1)          # Resolution indicates nominal speed is resolution/dt (m/s)
     multi_path.append(path_1)
 
-    # # Define path 2
-    # path_seg_2 = np.array([[0, 30], [0, 130]])
-    # path_2 = get_path(path_seg_2, 3)
-    # # print(path_2.shape)
-    # # print(path_2)
-    # multi_path.append(path_2)
+    # Define path 2
+    path_seg_2 = np.array([[100, 4], [0, 4]])
+    resolution_2 = 4
+    path_2 = get_path(path_seg_2, resolution_2)
+    multi_path.append(path_2)
+
     # # Define path 3
     # path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
     # path_3 = get_path(path_seg_3, 3)
@@ -108,16 +110,17 @@ def get_path(path_segments_array, resolution):
 
 
 def Setup_problem(multi_path):
-    # nstep = 100;
-    # dim = 4;
-
-    # start_1 = [0, 0];
-    # ending_1 = [200, 0]; 
-
-
-    # start_2 = [100, 0.5];
-    # ending_2 = [100, 0.5];
-    # margin = 0.25; 
+    '''
+    Args:
+        multi_path: Predefined original reference path for multiple cars.
+    Return:
+        Qref: Cost matrix with regard to original reference path.
+        Qabs: Cost matrix with regard to new planned path.
+        nstep: Number of steps.
+        dim: Dimension of reference path. dim = num_cars * 2.
+        oripath: Original path.
+        I_2: 4x4 identical matrix.
+    '''
     I_2 = np.array([[1, 0, -1, 0],
         [0, 1, 0, -1],
         [-1, 0, 1, 0],
@@ -125,9 +128,6 @@ def Setup_problem(multi_path):
 
     dim = multi_path.shape[0] * 2
     nstep = multi_path[0].shape[0]
-
-
-    #print(I_2)
 
     refpath = []
     for i in range(nstep):
@@ -138,17 +138,6 @@ def Setup_problem(multi_path):
 
     refpath = np.array([refpath]).T
     oripath = refpath
-
-    # for i in refpath:
-    # 	print(i, '\n')
-
-    # print("Path 1 is: ", path_1)
-    # print("refpath is of shape: ", refpath.shape)
-    # print("refpath is: ", refpath)
-
-    # nstep = 4
-    # dim = 2
-
 
     #Define the cost matrix
     dim = dim
@@ -167,37 +156,8 @@ def Setup_problem(multi_path):
 
 
     #Define the weights
-    cref = np.array([0.1, 0, 0])
-    cabs = np.array([0, 0, 100])
-
-    Qref = Q1*cref[0] + Q2*cref[1] + Q3*cref[2]
-    Qabs = Q1*cabs[0] + Q2*cabs[1] + Q3*cabs[2]
-
-    # print(Qref)
-    # print(Qref.shape)
-
-    #Fix the start and end points of all nine agents. Also, fix the path of agent 2 to 
-    #be always at the initial position.
-    # Aeq = np.zeros((2*dim + (nstep-2)*(int(dim/2)), nstep*dim))
-    # beq = np.zeros((2*dim + (nstep-2)*(int(dim/2)), 1))
-
-    # # Aeq = np.zeros((2*dim), nstep*dim))
-    # # beq = np.zeros((2*dim), 1))
-    
-    # Aeq[0:dim, 0:dim] = np.eye(dim)
-    # Aeq[dim:2*dim, (nstep-1)*dim:nstep*dim] = np.eye(dim)
-    # beq[0:2*dim] = np.concatenate((oripath[0:4], oripath[len(oripath)-4:]), axis = 0)
-    # #print(Aeq.shape)
-
-    # for i in range(1, nstep-1):
-    #     Aeq[2*dim + int(dim/2)*(i-1), dim*i + 2] = 1
-    #     Aeq[2*dim + int(dim/2)*(i-1) + 1, dim*i + 3] = 1
-    #     beq[2*dim + int(dim/2)*(i-1) : 2*dim + int(dim/2)*(i-1) + 2] = oripath[dim*i+2 : dim*i+4]
-
-
+    w = np.array([0.1, 0, 100])
+    Qref = Q1*w[0]
+    Qabs = Q2*w[1] + Q3*w[2]
 
     return Qref, Qabs, nstep, dim, oripath, I_2
-
-
-
-

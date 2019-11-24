@@ -265,15 +265,15 @@ def main():
     
 
     # Get original car 3's trajectory
-    ori_path3 = multi_path[-1]
-    distance = two_car_distance(pathnew1, ori_path3)
-    print(distance, np.argmin(distance))
+    # ori_path3 = multi_path[-1]
+    # distance = two_car_distance(pathnew1, ori_path3)
+    # print(distance, np.argmin(distance))
     # print(ori_path3)
 
-    # path_rendering(pathnew, num_cars)
-    # vel = get_velocity(pathnew2, dt)
-    # print(sum(vel)/len(vel))
-    # print(vel)
+    path_rendering(pathnew, num_cars)
+    vel = get_velocity(pathnew2, dt)
+    print("Average speed is: {}".format(sum(vel)/len(vel)))
+    print(vel)
     
 
 if __name__ == "__main__":

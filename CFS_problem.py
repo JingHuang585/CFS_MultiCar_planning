@@ -16,18 +16,18 @@ def define_path(dt):
     multi_path = []
     # Define path 0
     path_seg_0 = np.array([[20, 0], [70, 0]])
-    resolution_0 = 2                                     # Resolution indicates nominal speed is resolution/dt (m/s)
+    resolution_0 = 1                                     # Resolution indicates nominal speed is resolution/dt (m/s)
     path_0 = get_path(path_seg_0, resolution_0)          
     multi_path.append(path_0)
     # Define path 1
     path_seg_1 = np.array([[0, 0.01], [100, 0.01]])
-    resolution_1 = 4
+    resolution_1 = 2
     path_1 = get_path(path_seg_1, resolution_1)          # Resolution indicates nominal speed is resolution/dt (m/s)
     multi_path.append(path_1)
 
     # Define path 2
     path_seg_2 = np.array([[100, 4], [0, 4]])
-    resolution_2 = 4
+    resolution_2 = 2
     path_2 = get_path(path_seg_2, resolution_2)
     multi_path.append(path_2)
 

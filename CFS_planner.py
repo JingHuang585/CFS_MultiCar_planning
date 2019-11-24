@@ -115,7 +115,7 @@ def path_rendering(pathnew, num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
             plt.xlim(-5, 120)
-            plt.ylim(-5, 10)
+            plt.ylim(-20, 20)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j))
         plt.legend(plot_legend, loc = 'upper right')
@@ -250,6 +250,7 @@ def main():
     num_cars = 3
     dt = 0.2
     multi_path = define_path(dt)
+
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
     
     nstep = int(pathnew.shape[0] / (num_cars*2))
@@ -260,10 +261,17 @@ def main():
     pathnew2[:, 0] = pathnew[4 : : 6]
     pathnew2[:, 1] = pathnew[5 : : 6]
     # print(pathnew1[0, :], pathnew2[0, :])
-    distance = two_car_distance(pathnew1, pathnew2)
-    # path_rendering(pathnew, num_cars)
+    # distance = two_car_distance(pathnew1, pathnew2)
     
-    vel = get_velocity(pathnew2, dt)
+
+    # Get original car 3's trajectory
+    ori_path3 = multi_path[-1]
+    distance = two_car_distance(pathnew1, ori_path3)
+    print(distance, np.argmin(distance))
+    # print(ori_path3)
+
+    # path_rendering(pathnew, num_cars)
+    # vel = get_velocity(pathnew2, dt)
     # print(sum(vel)/len(vel))
     # print(vel)
     

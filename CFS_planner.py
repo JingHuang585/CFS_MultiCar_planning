@@ -24,7 +24,7 @@ import imageio
 #         return None
 #     return np.array(sol['x']).reshape((P.shape[1],))
 
-COLOR = ['red', 'blue', 'yellow', 'black']
+COLOR = ['red', 'blue', 'darkorange', 'black', 'green', 'darkblue', 'aqua', 'purple', 'maroon']
 
 def get_tayler_expansion_points(high_pri_pt, low_pri_pt, mini_distance):
     '''
@@ -114,8 +114,8 @@ def path_rendering(pathnew, num):
         for j in range(num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
-            plt.xlim(-5, 120)
-            plt.ylim(-20, 20)
+            plt.xlim(-10, 10)
+            plt.ylim(-40, 130)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j))
         plt.legend(plot_legend, loc = 'upper right')
@@ -138,6 +138,7 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     refpath = oripath
     print("refpath shape is:{}".format(refpath.shape))
     print("Qref shape:{}, Qabs shape:{}".format(Qref.shape, Qabs.shape))
+    print("Dimension is: {}".format(dim))
     Qe = Qref + Qabs
     n = nstep * dim
     print("n is: {}".format(n))
@@ -149,8 +150,8 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
         constraints = []
         for j in range(nstep):
             x_ref_1 = refpath[dim*j:dim*(j+1)]
-            if j < nstep-1:
-                x_ref_2 = refpath[dim*(j+1):dim*(j+2)]
+            # if j < nstep-1:
+            #     x_ref_2 = refpath[dim*(j+1):dim*(j+2)]
             if j <= 1 or j >= nstep - 2:
             	constraints.append(x[dim*j:dim*(j+1)] - oripath.squeeze()[dim*j:dim*(j+1)] == 0)
             
@@ -168,52 +169,56 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
                     constraints.append(cons)
             
             # Define lane keeping constraint for the car being overtaked
-            lane_keeping_id = [0, 2]
-            for k in lane_keeping_id:
-                cons = x[dim*j + 2*k+1] == x_ref_1[2*k+1]
-                constraints.append(cons)
+            # lane_keeping_id = [0, 2]
+            # for k in lane_keeping_id:
+            #     cons = x[dim*j + 2*k+1] == x_ref_1[2*k+1]
+            #     constraints.append(cons)
             
             
             # Define priority constraint
-            if j < nstep-1:
-                coe1 = get_line(x_ref_1[0], x_ref_1[1], x_ref_2[0], x_ref_2[1])
-                coe2 = get_line(x_ref_1[2], x_ref_1[3], x_ref_2[2], x_ref_2[3])
-                k1 = coe1[0:2]
-                b1 = coe1[2]
-                k2 = coe2[0:2]
-                b2 = coe2[2]
-                #print("k shape: {}".format(k1.shape))
-                if k1.T @ x_ref_1[2:4] + b1 > 0 and k1.T @ x_ref_2[2:4] + b1 < 0 and (k2.T @ x_ref_1[0:2] + b2)*(k2.T @ x_ref_2[0:2] + b2) < 0:
-                    cons1 = -k1.T @ x[dim*j+dim/2 : dim*(j+1)] <= b1
-                    cons2 = k1.T @ x[dim*(j+1)+dim/2 : dim*(j+2)] <= -b1
-                    constraints.append(cons1)
-                    constraints.append(cons2)
-                    if k2.T @ x_ref_1[0:2] + b2 > 0:
-                        cons3 = -k2.T @ x[dim*j : dim*j + dim/2] <= b2
-                        cons4 = -k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= b2
-                        constraints.append(cons3)
-                        constraints.append(cons4)
-                    else:
-                        cons3 = k2.T @ x[dim*j : dim*j + dim/2] <= -b2
-                        cons4 = k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= -b2
-                        constraints.append(cons3)
-                        constraints.append(cons4)
+            '''
+            For 9 car scenario, the reference trajectories don't have intersections at a specific same time, hence no need 
+            for the priority constraints.
+            '''
+            # if j < nstep-1:
+            #     coe1 = get_line(x_ref_1[0], x_ref_1[1], x_ref_2[0], x_ref_2[1])
+            #     coe2 = get_line(x_ref_1[2], x_ref_1[3], x_ref_2[2], x_ref_2[3])
+            #     k1 = coe1[0:2]
+            #     b1 = coe1[2]
+            #     k2 = coe2[0:2]
+            #     b2 = coe2[2]
+            #     #print("k shape: {}".format(k1.shape))
+            #     if k1.T @ x_ref_1[2:4] + b1 > 0 and k1.T @ x_ref_2[2:4] + b1 < 0 and (k2.T @ x_ref_1[0:2] + b2)*(k2.T @ x_ref_2[0:2] + b2) < 0:
+            #         cons1 = -k1.T @ x[dim*j+dim/2 : dim*(j+1)] <= b1
+            #         cons2 = k1.T @ x[dim*(j+1)+dim/2 : dim*(j+2)] <= -b1
+            #         constraints.append(cons1)
+            #         constraints.append(cons2)
+            #         if k2.T @ x_ref_1[0:2] + b2 > 0:
+            #             cons3 = -k2.T @ x[dim*j : dim*j + dim/2] <= b2
+            #             cons4 = -k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= b2
+            #             constraints.append(cons3)
+            #             constraints.append(cons4)
+            #         else:
+            #             cons3 = k2.T @ x[dim*j : dim*j + dim/2] <= -b2
+            #             cons4 = k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= -b2
+            #             constraints.append(cons3)
+            #             constraints.append(cons4)
                 
-                elif k1.T @ x_ref_1[2:4] + b1 < 0 and k1.T @ x_ref_2[2:4] + b1 > 0 and (k2.T @ x_ref_1[0:2] + b2)*(k2.T @ x_ref_2[0:2] + b2) < 0:
-                    cons1 = k1.T @ x[dim*j+dim/2 : dim*(j+1)] <= -b1
-                    cons2 = -k1.T @ x[dim*(j+1)+dim/2 : dim*(j+2)] <= b1
-                    constraints.append(cons1)
-                    constraints.append(cons2)
-                    if k2.T @ x_ref_1[0:2] + b2 > 0:
-                        cons3 = -k2.T @ x[dim*j : dim*j + dim/2] <= b2
-                        cons4 = -k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= b2
-                        constraints.append(cons3)
-                        constraints.append(cons4)
-                    else:
-                        cons3 = k2.T @ x[dim*j : dim*j + dim/2] <= -b2
-                        cons4 = k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= -b2
-                        constraints.append(cons3)
-                        constraints.append(cons4)
+            #     elif k1.T @ x_ref_1[2:4] + b1 < 0 and k1.T @ x_ref_2[2:4] + b1 > 0 and (k2.T @ x_ref_1[0:2] + b2)*(k2.T @ x_ref_2[0:2] + b2) < 0:
+            #         cons1 = k1.T @ x[dim*j+dim/2 : dim*(j+1)] <= -b1
+            #         cons2 = -k1.T @ x[dim*(j+1)+dim/2 : dim*(j+2)] <= b1
+            #         constraints.append(cons1)
+            #         constraints.append(cons2)
+            #         if k2.T @ x_ref_1[0:2] + b2 > 0:
+            #             cons3 = -k2.T @ x[dim*j : dim*j + dim/2] <= b2
+            #             cons4 = -k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= b2
+            #             constraints.append(cons3)
+            #             constraints.append(cons4)
+            #         else:
+            #             cons3 = k2.T @ x[dim*j : dim*j + dim/2] <= -b2
+            #             cons4 = k2.T @ x[dim*(j+1) : dim*(j+1) + dim/2] <= -b2
+            #             constraints.append(cons3)
+            #             constraints.append(cons4)
 
         # constraints.append(-2 <= 0)
         p = Problem(objective, constraints)
@@ -247,19 +252,19 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
 
 def main():
     MAX_ITER = 10
-    num_cars = 3
+    num_cars = 9
     dt = 0.2
     multi_path = define_path(dt)
 
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
     
-    nstep = int(pathnew.shape[0] / (num_cars*2))
-    pathnew1 = np.zeros((nstep, 2))
-    pathnew2 = np.zeros((nstep, 2))
-    pathnew1[:, 0] = pathnew[2 : : 6]
-    pathnew1[:, 1] = pathnew[3 : : 6]
-    pathnew2[:, 0] = pathnew[4 : : 6]
-    pathnew2[:, 1] = pathnew[5 : : 6]
+    # nstep = int(pathnew.shape[0] / (num_cars*2))
+    # pathnew1 = np.zeros((nstep, 2))
+    # pathnew2 = np.zeros((nstep, 2))
+    # pathnew1[:, 0] = pathnew[2 : : 6]
+    # pathnew1[:, 1] = pathnew[3 : : 6]
+    # pathnew2[:, 0] = pathnew[4 : : 6]
+    # pathnew2[:, 1] = pathnew[5 : : 6]
     # print(pathnew1[0, :], pathnew2[0, :])
     # distance = two_car_distance(pathnew1, pathnew2)
     
@@ -271,9 +276,9 @@ def main():
     # print(ori_path3)
 
     path_rendering(pathnew, num_cars)
-    vel = get_velocity(pathnew2, dt)
-    print("Average speed is: {}".format(sum(vel)/len(vel)))
-    print(vel)
+    # vel = get_velocity(pathnew2, dt)
+    # print("Average speed is: {}".format(sum(vel)/len(vel)))
+    # print(vel)
     
 
 if __name__ == "__main__":

@@ -15,59 +15,62 @@ def define_path(dt):
     '''
     multi_path = []
     # Define path 0
-    path_seg_0 = np.array([[20, 0], [70, 0]])
-    resolution_0 = 1                                     # Resolution indicates nominal speed is resolution/dt (m/s)
-    path_0 = get_path(path_seg_0, resolution_0)          
+    path_seg_0 = np.array([[0, 0], [0, 100]])
+    resolution_0 = 3                                     # Resolution indicates nominal speed is resolution/dt (m/s)
+    path_0 = get_path(path_seg_0, resolution_0)  
+    print("path 0 shape: {}".format(path_0.shape))        
     multi_path.append(path_0)
     # Define path 1
-    path_seg_1 = np.array([[0, 0.01], [100, 0.01]])
-    resolution_1 = 2
+    path_seg_1 = np.array([[-3.5, 0], [-3.5, 15], [0, 15], [0, 92.5]])
+    resolution_1 = 3
     path_1 = get_path(path_seg_1, resolution_1)          # Resolution indicates nominal speed is resolution/dt (m/s)
+    print("path 1 shape: {}".format(path_1.shape))
     multi_path.append(path_1)
 
     # Define path 2
-    path_seg_2 = np.array([[100, 4], [0, 4]])
-    resolution_2 = 2
+    path_seg_2 = np.array([[0, 30], [0, 130]])
+    resolution_2 = 3
     path_2 = get_path(path_seg_2, resolution_2)
+    print("path 2 shape: {}".format(path_2.shape))
     multi_path.append(path_2)
 
-    # # Define path 3
-    # path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
-    # path_3 = get_path(path_seg_3, 3)
-    # # print(path_3.shape)
-    # # print(path_3)
-    # multi_path.append(path_3)
-    # # Define path 4
-    # path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
-    # path_4 = get_path(path_seg_4, 3)
-    # # print(path_4.shape)
-    # # print(path_4)
-    # multi_path.append(path_4)
-    # # Define path 5
-    # path_seg_5 = np.array([[3.5, -20], [3.5, 80]])
-    # path_5 = get_path(path_seg_5, 3)
-    # # print(path_5.shape)
-    # # print(path_5)
-    # multi_path.append(path_5)
-    # # Define path 6
-    # path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 85]])
-    # path_6 = get_path(path_seg_6, 3)
-    # # print(path_6.shape)
-    # # print(path_6)
-    # multi_path.append(path_6)
-    # # Define path 7
-    # path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 75]])
-    # path_7 = get_path(path_seg_7, 3)
-    # # print(path_7.shape)
-    # # print(path_7)
-    # multi_path.append(path_7)
-    # # Define path 8
-    # path_seg_8 = np.array([[-3.5, -5], [-3.5, 95]])
-    # path_8 = get_path(path_seg_8, 3)
-    # # print(path_8.shape)
-    # # print(path_8)
-    # multi_path.append(path_8)
-    # # path_seg_2 = np.array()
+    # Define path 3
+    path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
+    path_3 = get_path(path_seg_3, 3)
+    print("path 3 shape: {}".format(path_3.shape))
+    multi_path.append(path_3)
+
+    # Define path 4
+    path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
+    path_4 = get_path(path_seg_4, 3)
+    print("path 4 shape: {}".format(path_4.shape))
+    multi_path.append(path_4)
+
+    # Define path 5
+    path_seg_5 = np.array([[3.5, -15], [3.5, 85]])
+    path_5 = get_path(path_seg_5, 3)
+    print("path 5 shape: {}".format(path_5.shape))
+    multi_path.append(path_5)
+
+    # Define path 6
+    path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 76]])
+    path_6 = get_path(path_seg_6, 3)
+    print("path 6 shape: {}".format(path_6.shape))
+    multi_path.append(path_6)
+
+    # Define path 7
+    path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 66]])
+    path_7 = get_path(path_seg_7, 3)
+    print("path 7 shape: {}".format(path_7.shape))
+    multi_path.append(path_7)
+
+    # Define path 8
+    path_seg_8 = np.array([[-3.5, -5], [-3.5, 95]])
+    path_8 = get_path(path_seg_8, 3)
+    print("path 8 shape: {}".format(path_8.shape))
+    multi_path.append(path_8)
+    # path_seg_2 = np.array()
+
     multi_path = np.array(multi_path)
     return multi_path
 
@@ -79,7 +82,7 @@ def get_interpolate(loc_1, loc_2, resolution = 3):
     '''
     # print(loc_1, loc_2)
     dist = LA.norm(loc_1 - loc_2)
-    points_num = int(dist // resolution) + 1 # From loc_1 point to the last point between loc_1 and loc_2. Not including loc_2.
+    points_num = int(dist // resolution) + 1     # From loc_1 point to the last point between loc_1 and loc_2. Not including loc_2.
     points_array = np.zeros((points_num, 2))
     for i in range(points_num):
         points_array[i][0] = (points_num-i)/points_num * loc_1[0] + i/points_num * loc_2[0]

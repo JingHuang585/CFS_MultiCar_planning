@@ -52,14 +52,30 @@ def two_car_distance(path1, path2):
     nstep = path1.shape[0]
     distance = []
     for i in range(nstep):
+        # print("----------", i, "----------")
         pts1 = path1[i, :]
         pts2 = path2[i, :]
+        # print(pts1, pts2, pts1-pts2)
         dist = np.linalg.norm(pts1-pts2)
+        # print(dist)
         distance.append(dist)
-    # plt.plot(distance)
-    # plt.show()
     print(np.min(distance))
     return distance
+
+def get_velocity(path, dt):
+    '''
+    Args:
+        path: Trajectory of a car.
+    Return:
+        velocity: Calculated velocity of the car based on the path.
+    '''
+    velocity = []
+    nstep = path.shape[0]
+    # print("Reference speed: {}".format(100/nstep))
+    for i in range(nstep-1):
+        vel_step = np.linalg.norm(path[i] - path[i+1]) / dt
+        velocity.append(vel_step)
+    return velocity
 
 def get_line(x1, y1, x2, y2):
     '''
@@ -87,8 +103,8 @@ def path_rendering(pathnew, num):
     car_path = np.zeros((num, nstep, 2))
     images = []
     for i in range(num):
-        car_path[i][:, 0] = pathnew[2*i : : 4]
-        car_path[i][:, 1] = pathnew[2*i+1 : : 4]
+        car_path[i][:, 0] = pathnew[2*i : : num*2]
+        car_path[i][:, 1] = pathnew[2*i+1 : : num*2]
     
     fig = plt.figure()
     for i in range(nstep):
@@ -98,8 +114,8 @@ def path_rendering(pathnew, num):
         for j in range(num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
-            plt.xlim(-5, 55)
-            plt.ylim(-5, 10)
+            plt.xlim(-5, 120)
+            plt.ylim(-20, 20)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j))
         plt.legend(plot_legend, loc = 'upper right')
@@ -118,7 +134,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     Returns:
         pathnew: Planned path for multiple cars.
     '''
-	#mini_distance = 20
     Qref, Qabs, nstep, dim, oripath, I_2 = Setup_problem(multi_path)
     refpath = oripath
     print("refpath shape is:{}".format(refpath.shape))
@@ -127,7 +142,6 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     n = nstep * dim
     print("n is: {}".format(n))
 
-    
     for i in range(MAX_ITER):
         print(i)
         x = Variable(n)
@@ -150,15 +164,17 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
                     b = -mini_distance**2 - 1/2 * (A_step @ ref_points)
                     A = -A_step
 
-                    #print(A[0, 0:2].shape, x[dim*j:dim*(j+1)][2*l:2*(l+1)].shape, b.shape)
                     cons = A[0, 0:2].reshape(1,2)@x[dim*j:dim*(j+1)][2*l:2*(l+1)] + A[0, 2:4].reshape(1,2)@x[dim*j:dim*(j+1)][2*m:2*(m+1)] <= b
                     constraints.append(cons)
-                    #break
-                #break
+            
+            # Define lane keeping constraint for the car being overtaked
+            lane_keeping_id = [0, 2]
+            for k in lane_keeping_id:
+                cons = x[dim*j + 2*k+1] == x_ref_1[2*k+1]
+                constraints.append(cons)
+            
             
             # Define priority constraint
-            # ...
-            #print("x_ref_1 shape: {}, x_ref_2 shape: {}".format(x_ref_1.shape, x_ref_2.shape))
             if j < nstep-1:
                 coe1 = get_line(x_ref_1[0], x_ref_1[1], x_ref_2[0], x_ref_2[1])
                 coe2 = get_line(x_ref_1[2], x_ref_1[3], x_ref_2[2], x_ref_2[3])
@@ -231,50 +247,34 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
 
 def main():
     MAX_ITER = 10
-    num_cars = 2
-    multi_path = define_path()
-
-    # print("Converted shape is: {}".format(multi_path.shape))
-
-    # for i in range(len(multi_path)):
-    #     multi_path[i] = multi_path[i][0:35, :]
-    #     print(multi_path[i].shape)
-
+    num_cars = 3
+    dt = 0.2
+    multi_path = define_path(dt)
 
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
     
     nstep = int(pathnew.shape[0] / (num_cars*2))
     pathnew1 = np.zeros((nstep, 2))
     pathnew2 = np.zeros((nstep, 2))
-    pathnew1[:, 0] = pathnew[0 : : 4]
-    pathnew1[:, 1] = pathnew[1 : : 4]
-    pathnew2[:, 0] = pathnew[2 : : 4]
-    pathnew2[:, 1] = pathnew[3 : : 4]
-    distance = two_car_distance(pathnew1, pathnew2)
+    pathnew1[:, 0] = pathnew[2 : : 6]
+    pathnew1[:, 1] = pathnew[3 : : 6]
+    pathnew2[:, 0] = pathnew[4 : : 6]
+    pathnew2[:, 1] = pathnew[5 : : 6]
+    # print(pathnew1[0, :], pathnew2[0, :])
+    # distance = two_car_distance(pathnew1, pathnew2)
+    
+
+    # Get original car 3's trajectory
+    # ori_path3 = multi_path[-1]
+    # distance = two_car_distance(pathnew1, ori_path3)
+    # print(distance, np.argmin(distance))
+    # print(ori_path3)
+
     path_rendering(pathnew, num_cars)
+    vel = get_velocity(pathnew2, dt)
+    print("Average speed is: {}".format(sum(vel)/len(vel)))
+    print(vel)
     
-
-    
-
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -26,14 +26,14 @@ import imageio
 
 COLOR = ['red', 'blue', 'darkorange', 'black', 'green', 'darkblue', 'aqua', 'purple', 'maroon']
 
-def get_tayler_expansion_points(high_pri_pt, low_pri_pt, mini_distance):
+def get_taylor_expansion_points(high_pri_pt, low_pri_pt, mini_distance):
     '''
     Args:
         high_pri_pt: Reference point 1 with higher priority.
         low_pri_pt: Reference point with lower priority.
         mini_distance: Safety margin between two cars.
     Return:
-        new_ref: New reference points that can be used for tayler expansion.
+        new_ref: New reference points that can be used for taylor expansion.
     '''
     new_ref = np.zeros((4, 1))
     new_ref[0:2] = high_pri_pt
@@ -160,7 +160,7 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
                 for m in range(l+1, int(dim/2)):                     # Loop through other cars to define the distance constraint
                     ref_point_1 = x_ref_1[2*l : 2*(l+1)].reshape(2,1)
                     ref_point_2 = x_ref_1[2*m : 2*(m+1)].reshape(2,1)
-                    ref_points = get_tayler_expansion_points(ref_point_1, ref_point_2, mini_distance)
+                    ref_points = get_taylor_expansion_points(ref_point_1, ref_point_2, mini_distance)
                     A_step = 2 * ref_points.T @ I_2
                     b = -mini_distance**2 - 1/2 * (A_step @ ref_points)
                     A = -A_step

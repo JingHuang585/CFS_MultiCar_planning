@@ -6,7 +6,6 @@ from cvxopt import matrix, solvers
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from cvxpy import *
-import matplotlib.pyplot as plt
 import imageio
 
 
@@ -56,9 +55,15 @@ def two_car_distance(path1, path2):
         pts2 = path2[i, :]
         dist = np.linalg.norm(pts1-pts2)
         distance.append(dist)
-    # plt.plot(distance)
-    # plt.show()
+        
     print(np.min(distance))
+    fig_distance = plt.figure()
+    plt.plot(distance)
+    plt.xlabel("t")
+    plt.ylabel("y")
+    plt.title("Distance between two cars")
+    fig_distance.savefig("./results/distance.png")
+
     return distance
 
 def get_line(x1, y1, x2, y2):
@@ -101,7 +106,7 @@ def path_rendering(pathnew, num):
             plt.xlim(-5, 25)
             plt.ylim(-5, 25)
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
-            plot_legend.append('car {}'.format(j))
+            plot_legend.append('car {}'.format(j+1))
         plt.legend(plot_legend, loc = 'upper right')
         fig.savefig('./results/{}.png'.format(i))
         images.append(imageio.imread('./results/{}.png'.format(i)))
@@ -120,14 +125,14 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     '''
     Qref, Qabs, nstep, dim, oripath, I_2 = Setup_problem(multi_path)
     refpath = oripath
-    print("refpath shape is:{}".format(refpath.shape))
-    print("Qref shape:{}, Qabs shape:{}".format(Qref.shape, Qabs.shape))
+    # print("refpath shape is:{}".format(refpath.shape))
+    # print("Qref shape:{}, Qabs shape:{}".format(Qref.shape, Qabs.shape))
     Qe = Qref + Qabs
     n = nstep * dim
-    print("n is: {}".format(n))
+    # print("n is: {}".format(n))
 
     for i in range(MAX_ITER):
-        print(i)
+        # print(i)
         x = Variable(n)
         objective = Minimize(0.5*quad_form(x,Qe) + (np.matmul(-Qref,oripath)).T @ x)
         constraints = []
@@ -198,13 +203,13 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
         primal_result = p.solve(solver = CVXOPT)
 
         pathnew = x.value
-        print("pathnew is of shape: {}".format(pathnew.shape))
-        print("pathnew is {}".format(pathnew))
+        # print("pathnew is of shape: {}".format(pathnew.shape))
+        # print("pathnew is {}".format(pathnew))
 
         diff = LA.norm(refpath - pathnew)
-        print("diff is: ", diff)
+        # print("diff is: ", diff)
         if diff < 0.001*nstep*dim:
-            print("Converged at step {}".format(i))
+            # print("Converged at step {}".format(i))
             break
 
         refpath = pathnew
@@ -229,13 +234,13 @@ def main():
     multi_path = define_path()
 
     # print("Converted shape is: {}".format(multi_path.shape))
-
-    # for i in range(len(multi_path)):
-    #     multi_path[i] = multi_path[i][0:35, :]
-    #     print(multi_path[i].shape)
+    np.save("Original_path.npy", multi_path)
 
 
+    start = time.time()
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
+    end = time.time()
+    print("Planning time: {}".format(end-start))
     
     nstep = int(pathnew.shape[0] / (num_cars*2))
     pathnew1 = np.zeros((nstep, 2))
@@ -246,9 +251,8 @@ def main():
     pathnew2[:, 1] = pathnew[3 : : 4]
     distance = two_car_distance(pathnew1, pathnew2)
     path_rendering(pathnew, num_cars)
-    
 
-    
+
 
 
 if __name__ == "__main__":

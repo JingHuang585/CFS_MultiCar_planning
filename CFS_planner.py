@@ -127,8 +127,8 @@ def path_rendering(pathnew, num):
         plt.legend(plot_legend, loc = 'upper right')
         # if (i == nstep - 1):
         #     plt.show()
-        fig.savefig('./results/{}.png'.format(i))
-        images.append(imageio.imread('./results/{}.png'.format(i)))
+        fig.savefig('./results/{}.eps'.format(i))
+        images.append(imageio.imread('./results/{}.eps'.format(i)))
     imageio.mimsave('./results/Path_rendering.gif', images)
 
 
@@ -283,7 +283,7 @@ def main():
     plt.title("Velocity of car 2 and car 3")
     plt.legend(["Car 2", "Car 3"], loc = 'upper right')
     plt.show()
-    fig_distance.savefig("./results/vel.png")
+    fig_distance.savefig("./results/vel.eps")
 
     # print("Average speed is: {}".format(sum(vel)/len(vel)))
     # print(vel)

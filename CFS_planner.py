@@ -108,8 +108,8 @@ def path_rendering(pathnew, num):
             plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
             plot_legend.append('car {}'.format(j+1))
         plt.legend(plot_legend, loc = 'upper right')
-        fig.savefig('./results/{}.png'.format(i))
-        images.append(imageio.imread('./results/{}.png'.format(i)))
+        fig.savefig('./results/{}.eps'.format(i))
+        images.append(imageio.imread('./results/{}.eps'.format(i)))
     imageio.mimsave('./results/Path_rendering.gif', images)
 
 

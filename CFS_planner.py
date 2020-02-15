@@ -114,13 +114,13 @@ def path_rendering(pathnew, num):
         for j in range(num):
             x[j] = car_path[j][i, 0]
             y[j] = car_path[j][i, 1]
-            plt.xlim(-10, 10)
-            plt.ylim(-40, 130)
-            plt.scatter(x[j], y[j], marker = 'o', color = COLOR[j])
-            plot_legend.append('car {}'.format(j))
+            plt.ylim(-10, 10)
+            plt.xlim(-40, 130)
+            plt.scatter(y[j], x[j], marker = 'o', color = COLOR[j])
+            plot_legend.append('car {}'.format(j+1))
         plt.legend(plot_legend, loc = 'upper right')
-        fig.savefig('./results/{}.png'.format(i))
-        images.append(imageio.imread('./results/{}.png'.format(i)))
+        fig.savefig('./results/{}.eps'.format(i))
+        images.append(imageio.imread('./results/{}.eps'.format(i)))
     imageio.mimsave('./results/Path_rendering.gif', images)
 
 
@@ -255,9 +255,10 @@ def main():
     num_cars = 9
     dt = 0.2
     multi_path = define_path(dt)
+    np.save("Original_path.npy", multi_path)
 
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
-    
+
     # nstep = int(pathnew.shape[0] / (num_cars*2))
     # pathnew1 = np.zeros((nstep, 2))
     # pathnew2 = np.zeros((nstep, 2))
@@ -280,6 +281,7 @@ def main():
     # print("Average speed is: {}".format(sum(vel)/len(vel)))
     # print(vel)
     
+    # plt.show()
 
 if __name__ == "__main__":
     main()

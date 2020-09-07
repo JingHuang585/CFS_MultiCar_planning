@@ -16,60 +16,60 @@ def define_path(dt):
     multi_path = []
     # Define path 0
     path_seg_0 = np.array([[0, 0], [0, 100]])
-    resolution_0 = 3                                     # Resolution indicates nominal speed is resolution/dt (m/s)
+    resolution_0 = 3.5                                     # Resolution indicates nominal speed is resolution/dt (m/s)
     path_0 = get_path(path_seg_0, resolution_0)  
     print("path 0 shape: {}".format(path_0.shape))        
     multi_path.append(path_0)
-    # Define path 1
-    path_seg_1 = np.array([[-3.5, 0], [-3.5, 15], [0, 15], [0, 92.5]])
-    resolution_1 = 3
-    path_1 = get_path(path_seg_1, resolution_1)          # Resolution indicates nominal speed is resolution/dt (m/s)
-    print("path 1 shape: {}".format(path_1.shape))
-    multi_path.append(path_1)
+    # # Define path 1
+    # path_seg_1 = np.array([[-3.5, 0], [-3.5, 15], [0, 15], [0, 92.5]])
+    # resolution_1 = 7
+    # path_1 = get_path(path_seg_1, resolution_1)          # Resolution indicates nominal speed is resolution/dt (m/s)
+    # print("path 1 shape: {}".format(path_1.shape))
+    # multi_path.append(path_1)
 
     # Define path 2
     path_seg_2 = np.array([[0, 30], [0, 130]])
-    resolution_2 = 3
+    resolution_2 = 3.5
     path_2 = get_path(path_seg_2, resolution_2)
     print("path 2 shape: {}".format(path_2.shape))
     multi_path.append(path_2)
 
-    # Define path 3
-    path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
-    path_3 = get_path(path_seg_3, 3)
-    print("path 3 shape: {}".format(path_3.shape))
-    multi_path.append(path_3)
+    # # Define path 3
+    # path_seg_3 = np.array([[3.5, 15], [3.5, 115]])
+    # path_3 = get_path(path_seg_3, 3)
+    # print("path 3 shape: {}".format(path_3.shape))
+    # multi_path.append(path_3)
 
-    # Define path 4
-    path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
-    path_4 = get_path(path_seg_4, 3)
-    print("path 4 shape: {}".format(path_4.shape))
-    multi_path.append(path_4)
+    # # Define path 4
+    # path_seg_4 = np.array([[3.5, 0], [3.5, 100]])
+    # path_4 = get_path(path_seg_4, 3)
+    # print("path 4 shape: {}".format(path_4.shape))
+    # multi_path.append(path_4)
 
-    # Define path 5
-    path_seg_5 = np.array([[3.5, -15], [3.5, 85]])
-    path_5 = get_path(path_seg_5, 3)
-    print("path 5 shape: {}".format(path_5.shape))
-    multi_path.append(path_5)
+    # # Define path 5
+    # path_seg_5 = np.array([[3.5, -15], [3.5, 85]])
+    # path_5 = get_path(path_seg_5, 3)
+    # print("path 5 shape: {}".format(path_5.shape))
+    # multi_path.append(path_5)
 
-    # Define path 6
-    path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 76]])
-    path_6 = get_path(path_seg_6, 3)
-    print("path 6 shape: {}".format(path_6.shape))
-    multi_path.append(path_6)
+    # # Define path 6
+    # path_seg_6 = np.array([[0, -15], [0, 0], [3.5, 0], [3.5, 76]])
+    # path_6 = get_path(path_seg_6, 3)
+    # print("path 6 shape: {}".format(path_6.shape))
+    # multi_path.append(path_6)
 
-    # Define path 7
-    path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 66]])
-    path_7 = get_path(path_seg_7, 3)
-    print("path 7 shape: {}".format(path_7.shape))
-    multi_path.append(path_7)
+    # # Define path 7
+    # path_seg_7 = np.array([[-3.5, -25], [-3.5, -10], [0, -10], [0, 66]])
+    # path_7 = get_path(path_seg_7, 3)
+    # print("path 7 shape: {}".format(path_7.shape))
+    # multi_path.append(path_7)
 
-    # Define path 8
-    path_seg_8 = np.array([[-3.5, -5], [-3.5, 95]])
-    path_8 = get_path(path_seg_8, 3)
-    print("path 8 shape: {}".format(path_8.shape))
-    multi_path.append(path_8)
-    # path_seg_2 = np.array()
+    # # Define path 8
+    # path_seg_8 = np.array([[-3.5, 5], [-3.5, 105]])
+    # path_8 = get_path(path_seg_8, 3)
+    # print("path 8 shape: {}".format(path_8.shape))
+    # multi_path.append(path_8)
+    # # path_seg_2 = np.array()
 
     multi_path = np.array(multi_path)
     return multi_path

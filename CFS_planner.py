@@ -142,7 +142,7 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
     Qe = Qref + Qabs
     n = nstep * dim
     print("n is: {}".format(n))
-
+    start_time = time.time()
     for i in range(MAX_ITER):
         print(i)
         x = Variable(n)
@@ -235,14 +235,9 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
             break
 
         refpath = pathnew
-
-        # Show planned path
-        # for i in range(2):
-        #     x = pathnew[2*i : : 4]
-        #     y = pathnew[2*i+1 : : 4]
-        #     plt.plot(y, x)
-        # plt.legend(('1', '2'))
-        # plt.show()
+    
+    end_time = time.time()
+    print("Planning time is: {}".format(end_time - start_time))
 
     print("Loop finished!")
 
@@ -252,9 +247,10 @@ def Plan_trajectory(MAX_ITER, multi_path, mini_distance):
 
 def main():
     MAX_ITER = 10
-    num_cars = 9
     dt = 0.2
     multi_path = define_path(dt)
+    num_cars = len(multi_path)
+    print(multi_path[0].shape)
     np.save("Original_path.npy", multi_path)
 
     pathnew = Plan_trajectory(MAX_ITER, multi_path, 3)
@@ -276,7 +272,7 @@ def main():
     # print(distance, np.argmin(distance))
     # print(ori_path3)
 
-    path_rendering(pathnew, num_cars)
+    # path_rendering(pathnew, num_cars)
     # vel = get_velocity(pathnew2, dt)
     # print("Average speed is: {}".format(sum(vel)/len(vel)))
     # print(vel)
